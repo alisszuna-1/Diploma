@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="sq">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vlerësuesi i Riskut të Falimentimit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EDEFE8;
+    --paper: #F6F7F2;
+    --ink: #17233A;
+    --ink-soft: #4B5566;
+    --line: #C9CDBF;
+    --brass: #8A6A2E;
+    --brass-soft: #B3924F;
+    --low: #2E7D4F;
+    --mid: #A6791F;
+    --high: #B0453B;
+    --low-bg: rgba(46,125,79,0.10);
+    --mid-bg: rgba(166,121,31,0.12);
+    --high-bg: rgba(176,69,59,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1620;
+      --paper: #161F2C;
+      --ink: #E9E7DC;
+      --ink-soft: #9AA3B2;
+      --line: #2C3646;
+      --brass: #C9A227;
+      --brass-soft: #A6863A;
+      --low: #4CAF77;
+      --mid: #D2A23A;
+      --high: #E0685D;
+      --low-bg: rgba(76,175,119,0.12);
+      --mid-bg: rgba(210,162,58,0.14);
+      --high-bg: rgba(224,104,93,0.12);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1620;
+    --paper: #161F2C;
+    --ink: #E9E7DC;
+    --ink-soft: #9AA3B2;
+    --line: #2C3646;
+    --brass: #C9A227;
+    --brass-soft: #A6863A;
+    --low: #4CAF77;
+    --mid: #D2A23A;
+    --high: #E0685D;
+    --low-bg: rgba(76,175,119,0.12);
+    --mid-bg: rgba(210,162,58,0.14);
+    --high-bg: rgba(224,104,93,0.12);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.5;
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+
+  header { margin-bottom: 32px; }
+  .kicker {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    color: var(--brass);
+    letter-spacing: 0.02em;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: clamp(28px, 6vw, 36px);
+    font-weight: 600;
+    margin: 0 0 12px;
+    line-height: 1.15;
+  }
+  .lede {
+    color: var(--ink-soft);
+    font-size: 15px;
+    max-width: 54ch;
+  }
+
+  .panel {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 24px 20px;
+    margin-bottom: 20px;
+  }
+  .panel-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .panel-sub {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 20px;
+  }
+
+  .field {
+    display: grid;
+    grid-template-columns: 1fr 110px;
+    align-items: end;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .field:last-child { border-bottom: none; }
+  .field label {
+    font-size: 14.5px;
+    font-weight: 500;
+  }
+  .field .hint {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .field input {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    text-align: right;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: var(--bg);
+    color: var(--ink);
+    width: 100%;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: var(--brass-soft);
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 22px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--brass);
+    color: var(--paper);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  button:active { transform: translateY(1px); }
+  .err {
+    font-size: 13px;
+    color: var(--high);
+    margin-top: 10px;
+    display: none;
+  }
+
+  #result { display: none; }
+  .result-top {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .result-pct {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 52px;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .result-tag {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 3px;
+  }
+  .result-note {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin-top: 10px;
+  }
+
+  .breakdown-title {
+    font-family: 'Source Serif 4', serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 28px 0 4px;
+  }
+  .breakdown-sub {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 0 0 16px;
+  }
+  .row {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .row:last-child { border-bottom: none; }
+  .row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 13.5px;
+    margin-bottom: 6px;
+  }
+  .row-name { font-weight: 500; }
+  .row-vals {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--ink-soft);
+    font-size: 12.5px;
+  }
+  .bar-track {
+    position: relative;
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    margin: 8px 0 6px;
+  }
+  .bar-mean {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 12px;
+    background: var(--ink-soft);
+  }
+  .bar-dot {
+    position: absolute;
+    top: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--paper);
+    transform: translateX(-50%);
+  }
+  .row-tag {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
+  .tag-low { color: var(--low); background: var(--low-bg); }
+  .tag-mid { color: var(--mid); background: var(--mid-bg); }
+  .tag-high { color: var(--high); background: var(--high-bg); }
+
+  footer {
+    margin-top: 28px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">PROTOTIP AKADEMIK — MODEL I REGRESIONIT LOGJISTIK</div>
+    <h1>Vlerësuesi i Riskut të Falimentimit</h1>
+    <p class="lede">Plotëso 8 treguesit financiarë të një biznesi. Modeli, i trajnuar mbi 180 kompani shqiptare, jep gjasën e falimentimit dhe krahason çdo tregues me mesataren e datasetit.</p>
+  </header>
+
+  <div class="panel">
+    <p class="panel-title">Të dhënat e biznesit</p>
+    <p class="panel-sub">Vendos vlerat si numra dhjetorë (p.sh. 1.53, jo 153%)</p>
+
+    <div class="field">
+      <label>Raporti Rrjedhës<span class="hint">Current Ratio — Aktive rrjedhëse ÷ Detyrime rrjedhëse</span></label>
+      <input type="number" step="0.01" id="Current_Ratio" placeholder="1.53">
+    </div>
+    <div class="field">
+      <label>Raporti i Shpejtë<span class="hint">Quick Ratio — (Aktive rrjedhëse − Inventari) ÷ Detyrime rrjedhëse</span></label>
+      <input type="number" step="0.01" id="Quick_Ratio" placeholder="1.13">
+    </div>
+    <div class="field">
+      <label>Borxhi/Kapitali<span class="hint">Debt-to-Equity — Detyrime totale ÷ Kapitali i vet</span></label>
+      <input type="number" step="0.01" id="Debt_to_Equity" placeholder="1.33">
+    </div>
+    <div class="field">
+      <label>Mbulimi i Interesit<span class="hint">Interest Coverage — EBIT ÷ Shpenzime interesi</span></label>
+      <input type="number" step="0.01" id="Interest_Coverage" placeholder="4.43">
+    </div>
+    <div class="field">
+      <label>Kthimi nga Aktivet<span class="hint">ROA — Fitimi neto ÷ Aktive totale</span></label>
+      <input type="number" step="0.001" id="ROA" placeholder="0.042">
+    </div>
+    <div class="field">
+      <label>Marzhi i Fitimit Neto<span class="hint">Net Profit Margin — Fitimi neto ÷ Shitjet</span></label>
+      <input type="number" step="0.001" id="Net_Profit_Margin" placeholder="0.045">
+    </div>
+    <div class="field">
+      <label>Qarkullimi i Aktiveve<span class="hint">Asset Turnover — Shitjet ÷ Aktive totale</span></label>
+      <input type="number" step="0.01" id="Asset_Turnover" placeholder="1.20">
+    </div>
+    <div class="field">
+      <label>Totali i Aktiveve<span class="hint">Firm Size — do konvertohet automatikisht në ln(Total Assets)</span></label>
+      <input type="number" step="1000" id="Total_Assets" placeholder="p.sh. 2400000">
+    </div>
+
+    <button onclick="calculate()">Llogarit Riskun</button>
+    <p class="err" id="errMsg">Ju lutem plotëso të gjitha fushat me vlera numerike (Totali i Aktiveve duhet të jetë pozitiv).</p>
+  </div>
+
+  <div class="panel" id="result">
+    <p class="panel-title">Rezultati</p>
+    <div class="result-top">
+      <span class="result-pct" id="pctOut">—</span>
+      <span class="result-tag" id="tagOut">—</span>
+    </div>
+    <p class="result-note" id="noteOut"></p>
+
+    <p class="breakdown-title">Ndarja sipas treguesve</p>
+    <p class="breakdown-sub">Pika e errët = vlera jote · Vija vertikale = mesatarja e 180 kompanive</p>
+    <div id="breakdown"></div>
+  </div>
+
+  <footer>
+    Modeli (Regresion Logjistik) është trajnuar mbi Database_Alis.xlsx (N=180, saktësi ~90% mbi datasetin e plotë). Ky është një mjet akademik demonstrues për temën e diplomës dhe nuk përbën këshillim financiar profesional.
+  </footer>
+</div>
+
+<script>
+const MODEL = {
+  ratios: ["Current_Ratio","Quick_Ratio","Debt_to_Equity","Interest_Coverage","ROA","Net_Profit_Margin","Asset_Turnover","Firm_Size_lnTA"],
+  labels: {
+    Current_Ratio: "Raporti Rrjedhës",
+    Quick_Ratio: "Raporti i Shpejtë",
+    Debt_to_Equity: "Borxhi/Kapitali",
+    Interest_Coverage: "Mbulimi i Interesit",
+    ROA: "Kthimi nga Aktivet (ROA)",
+    Net_Profit_Margin: "Marzhi i Fitimit Neto",
+    Asset_Turnover: "Qarkullimi i Aktiveve",
+    Firm_Size_lnTA: "Madhësia e Firmës (ln Aktive)"
+  },
+  overall: {
+    mean:  [1.529601, 1.133026, 1.332131, 4.428737, 0.042189, 0.044990, 1.198620, 14.681274],
+    scale: [0.516959, 0.517954, 0.551721, 3.322133, 0.063601, 0.067915, 0.411452, 1.247122],
+    coef:  [-0.138911, -0.621117, 0.640421, -0.631308, -0.870497, -1.376434, -0.860802, -0.048100],
+    intercept: -2.088687
+  },
+  uni: {
+    Current_Ratio:      {mean:1.529601, scale:0.516959, coef:-0.360229, intercept:-1.100461},
+    Quick_Ratio:         {mean:1.133026, scale:0.517954, coef:-0.709005, intercept:-1.184614},
+    Debt_to_Equity:      {mean:1.332131, scale:0.551721, coef: 0.887764, intercept:-1.235070},
+    Interest_Coverage:   {mean:4.428737, scale:3.322133, coef:-0.678568, intercept:-1.176213},
+    ROA:                 {mean:0.042189, scale:0.063601, coef:-1.006725, intercept:-1.284362},
+    Net_Profit_Margin:   {mean:0.044990, scale:0.067915, coef:-1.392476, intercept:-1.406073},
+    Asset_Turnover:      {mean:1.198620, scale:0.411452, coef:-0.731172, intercept:-1.192684},
+    Firm_Size_lnTA:      {mean:14.681274, scale:1.247122, coef:-0.305713, intercept:-1.091571}
+  },
+  domain: {
+    Current_Ratio:      {min:0.2,  max:3.005},
+    Quick_Ratio:         {min:0.1,  max:3.0},
+    Debt_to_Equity:      {min:0.1,  max:2.987},
+    Interest_Coverage:   {min:-1.5, max:15.768},
+    ROA:                 {min:-0.139, max:0.2},
+    Net_Profit_Margin:   {min:-0.194, max:0.223},
+    Asset_Turnover:      {min:0.2,  max:2.241},
+    Firm_Size_lnTA:      {min:11.139, max:17.378}
+  }
+};
+
+function sigmoid(z) { return 1 / (1 + Math.exp(-z)); }
+
+function riskTag(p) {
+  if (p < 0.33) return {cls: 'tag-low', label: 'Risk i ulët', color: 'var(--low)'};
+  if (p < 0.66) return {cls: 'tag-mid', label: 'Risk mesatar', color: 'var(--mid)'};
+  return {cls: 'tag-high', label: 'Risk i lartë', color: 'var(--high)'};
+}
+
+function calculate() {
+  const vals = {};
+  let ok = true;
+
+  for (const r of MODEL.ratios) {
+    if (r === 'Firm_Size_lnTA') continue;
+    const el = document.getElementById(r);
+    const v = parseFloat(el.value);
+    if (isNaN(v)) ok = false;
+    vals[r] = v;
+  }
+  const ta = parseFloat(document.getElementById('Total_Assets').value);
+  if (isNaN(ta) || ta <= 0) ok = false;
+  else vals['Firm_Size_lnTA'] = Math.log(ta);
+
+  document.getElementById('errMsg').style.display = ok ? 'none' : 'block';
+  if (!ok) return;
+
+  // Overall multivariate prediction
+  let z = MODEL.overall.intercept;
+  MODEL.ratios.forEach((r, i) => {
+    const zscore = (vals[r] - MODEL.overall.mean[i]) / MODEL.overall.scale[i];
+    z += MODEL.overall.coef[i] * zscore;
+  });
+  const pOverall = sigmoid(z);
+  const tag = riskTag(pOverall);
+
+  document.getElementById('pctOut').textContent = Math.round(pOverall * 100) + '%';
+  document.getElementById('pctOut').style.color = tag.color;
+  const tagEl = document.getElementById('tagOut');
+  tagEl.textContent = tag.label;
+  tagEl.className = 'result-tag ' + tag.cls;
+  document.getElementById('noteOut').textContent =
+    'Gjasa e falimentimit sipas modelit të kombinuar (8 tregues), krahasuar me profilin mesatar të 180 kompanive në dataset.';
+
+  // Per-indicator breakdown
+  const bd = document.getElementById('breakdown');
+  bd.innerHTML = '';
+  MODEL.ratios.forEach(r => {
+    const u = MODEL.uni[r];
+    const zscore = (vals[r] - u.mean) / u.scale;
+    const pUni = sigmoid(u.intercept + u.coef * zscore);
+    const t = riskTag(pUni);
+    const dom = MODEL.domain[r];
+    const meanPos = Math.max(0, Math.min(100, (u.mean - dom.min) / (dom.max - dom.min) * 100));
+    const valPos = Math.max(0, Math.min(100, (vals[r] - dom.min) / (dom.max - dom.min) * 100));
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div class="row-top">
+        <span class="row-name">${MODEL.labels[r]}</span>
+        <span class="row-tag ${t.cls}">${t.label} · ${Math.round(pUni*100)}%</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-mean" style="left:${meanPos}%"></div>
+        <div class="bar-dot" style="left:${valPos}%; background:${t.color};"></div>
+      </div>
+      <div class="row-vals">Vlera jote: ${r==='Firm_Size_lnTA' ? vals[r].toFixed(2)+' (ln)' : vals[r]} &nbsp;·&nbsp; Mesatarja: ${u.mean.toFixed(r==='ROA'||r==='Net_Profit_Margin'?3:2)}</div>
+    `;
+    bd.appendChild(row);
+  });
+
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+</script>
+</body>
+</html>
